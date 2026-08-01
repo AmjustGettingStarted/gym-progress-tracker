@@ -11,7 +11,7 @@ import {
 import { DEFAULT_EXERCISES, DEFAULT_TEMPLATES, INITIAL_USER_PROFILE } from './data/defaultData';
 import { StorageService, GuestWorkoutData } from './lib/storage';
 import { supabase, logoutUser, User } from './lib/supabase';
-import { SupabaseSyncService } from './lib/supabaseSync';
+import { SupabaseSyncService, UserDataSnapshot } from './lib/supabaseSync';
 import { calculateAllPRs } from './lib/calculations';
 import { Navigation } from './components/Navigation';
 import { DashboardView } from './components/Dashboard/DashboardView';
@@ -52,9 +52,11 @@ export default function App() {
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState<boolean>(false);
   const [isStartWorkoutModalOpen, setIsStartWorkoutModalOpen] = useState<boolean>(false);
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
+  const [hasHydratedUserData, setHasHydratedUserData] = useState<boolean>(false);
 
   // Helper to load Guest Mode state from dedicated localStorage
   const loadGuestState = useCallback(() => {
+    setHasHydratedUserData(false);
     const guestData = StorageService.getGuestData();
     setSessions(guestData.sessions);
     setTemplates(guestData.templates);
@@ -77,6 +79,49 @@ export default function App() {
     StorageService.saveGuestData(updated);
   }, [currentUser]);
 
+  const applySnapshot = useCallback((snapshot: UserDataSnapshot) => {
+    setSessions(snapshot.sessions);
+    setTemplates(snapshot.templates);
+    setCustomExercises(snapshot.customExercises);
+    setExercises([...DEFAULT_EXERCISES, ...snapshot.customExercises]);
+    setMeasurements(snapshot.measurements);
+    setPhotos(snapshot.photos);
+    setProfile(snapshot.profile);
+    setActiveWorkout(snapshot.activeDraft ?? null);
+  }, []);
+
+  // Helper to handle user login initialization and sync
+  const handleUserLogin = useCallback(async (user: User) => {
+    setHasHydratedUserData(false);
+
+    const initialProfile: UserProfile = {
+      ...INITIAL_USER_PROFILE,
+      email: user.email || INITIAL_USER_PROFILE.email,
+      name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || INITIAL_USER_PROFILE.name,
+    };
+
+    const starterSnapshot: UserDataSnapshot = {
+      sessions: [],
+      templates: DEFAULT_TEMPLATES,
+      customExercises: [],
+      measurements: [],
+      photos: [],
+      profile: initialProfile,
+      activeDraft: null,
+    };
+
+    const cloudData = await SupabaseSyncService.loadUserData(user.id);
+    if (!cloudData.exists) {
+      await SupabaseSyncService.saveUserData(user.id, starterSnapshot);
+      applySnapshot(starterSnapshot);
+      setHasHydratedUserData(true);
+      return;
+    }
+
+    applySnapshot(cloudData);
+    setHasHydratedUserData(true);
+  }, [applySnapshot]);
+
   // Load initial guest data on startup
   useEffect(() => {
     loadGuestState();
@@ -89,28 +134,7 @@ export default function App() {
       const user = session?.user ?? null;
       setCurrentUser(user);
       if (user) {
-        SupabaseSyncService.loadUserData(user.id).then((cloudData) => {
-          if (cloudData) {
-            if (cloudData.profile) {
-              setProfile(cloudData.profile);
-            } else {
-              const initialProf: UserProfile = {
-                ...INITIAL_USER_PROFILE,
-                email: user.email || INITIAL_USER_PROFILE.email,
-                name: user.user_metadata?.full_name || user.email?.split('@')[0] || INITIAL_USER_PROFILE.name,
-              };
-              setProfile(initialProf);
-              SupabaseSyncService.saveProfile(user.id, initialProf);
-            }
-            setSessions(cloudData.sessions);
-            setTemplates(cloudData.templates.length > 0 ? cloudData.templates : DEFAULT_TEMPLATES);
-            setCustomExercises(cloudData.customExercises);
-            setExercises([...DEFAULT_EXERCISES, ...cloudData.customExercises]);
-            setMeasurements(cloudData.measurements);
-            setPhotos(cloudData.photos);
-            setActiveWorkout(null);
-          }
-        });
+        handleUserLogin(user);
       }
     });
 
@@ -121,28 +145,7 @@ export default function App() {
       setCurrentUser(user);
 
       if (user) {
-        // Connected to authenticated user account: fetch remote Supabase data
-        const cloudData = await SupabaseSyncService.loadUserData(user.id);
-        if (cloudData) {
-          if (cloudData.profile) {
-            setProfile(cloudData.profile);
-          } else {
-            const initialProf: UserProfile = {
-              ...INITIAL_USER_PROFILE,
-              email: user.email || INITIAL_USER_PROFILE.email,
-              name: user.user_metadata?.full_name || user.email?.split('@')[0] || INITIAL_USER_PROFILE.name,
-            };
-            setProfile(initialProf);
-            SupabaseSyncService.saveProfile(user.id, initialProf);
-          }
-          setSessions(cloudData.sessions);
-          setTemplates(cloudData.templates.length > 0 ? cloudData.templates : DEFAULT_TEMPLATES);
-          setCustomExercises(cloudData.customExercises);
-          setExercises([...DEFAULT_EXERCISES, ...cloudData.customExercises]);
-          setMeasurements(cloudData.measurements);
-          setPhotos(cloudData.photos);
-          setActiveWorkout(null);
-        }
+        handleUserLogin(user);
       } else {
         // Disconnected / Logged out / Guest Mode: reload local guest_workout_data state
         loadGuestState();
@@ -152,7 +155,7 @@ export default function App() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [loadGuestState]);
+  }, [loadGuestState, handleUserLogin]);
 
   // Theme Syncing Effect
   useEffect(() => {
@@ -162,6 +165,22 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [profile.theme]);
+
+  useEffect(() => {
+    if (!currentUser || !hasHydratedUserData) return;
+
+    const payload: UserDataSnapshot = {
+      sessions,
+      templates,
+      customExercises,
+      measurements,
+      photos,
+      profile,
+      activeDraft: activeWorkout,
+    };
+
+    void SupabaseSyncService.saveUserData(currentUser.id, payload);
+  }, [activeWorkout, currentUser, customExercises, hasHydratedUserData, measurements, photos, profile, sessions, templates]);
 
   // Derived Personal Records
   const prs = calculateAllPRs(sessions);
@@ -244,7 +263,16 @@ export default function App() {
     setActiveWorkout(null);
 
     if (currentUser) {
-      SupabaseSyncService.saveSession(currentUser.id, completedSession);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions: updatedSessionsList,
+        templates,
+        customExercises,
+        measurements,
+        photos,
+        profile,
+        activeDraft: null,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({
         sessions: updatedSessionsList,
@@ -274,7 +302,16 @@ export default function App() {
     setExercises([...DEFAULT_EXERCISES, ...updatedCustom]);
 
     if (currentUser) {
-      SupabaseSyncService.saveCustomExercise(currentUser.id, newEx);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises: updatedCustom,
+        measurements,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ customExercises: updatedCustom });
     }
@@ -285,7 +322,16 @@ export default function App() {
     const updated = [newTpl, ...templates];
     setTemplates(updated);
     if (currentUser) {
-      SupabaseSyncService.saveTemplate(currentUser.id, newTpl);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates: updated,
+        customExercises,
+        measurements,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ templates: updated });
     }
@@ -296,7 +342,16 @@ export default function App() {
     const updated = templates.map((t) => (t.id === updatedTpl.id ? updatedTpl : t));
     setTemplates(updated);
     if (currentUser) {
-      SupabaseSyncService.saveTemplate(currentUser.id, updatedTpl);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates: updated,
+        customExercises,
+        measurements,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ templates: updated });
     }
@@ -307,7 +362,16 @@ export default function App() {
     const updated = templates.filter((t) => t.id !== id);
     setTemplates(updated);
     if (currentUser) {
-      SupabaseSyncService.deleteTemplate(id);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates: updated,
+        customExercises,
+        measurements,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ templates: updated });
     }
@@ -333,7 +397,16 @@ export default function App() {
       const updated = sessions.filter((s) => s.id !== sessionToDeleteId);
       setSessions(updated);
       if (currentUser) {
-        SupabaseSyncService.deleteSession(sessionToDeleteId);
+        const nextSnapshot: UserDataSnapshot = {
+          sessions: updated,
+          templates,
+          customExercises,
+          measurements,
+          photos,
+          profile,
+          activeDraft: activeWorkout,
+        };
+        void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
       } else {
         updateGuestStorage({ sessions: updated });
       }
@@ -373,7 +446,16 @@ export default function App() {
     const updated = [m, ...measurements];
     setMeasurements(updated);
     if (currentUser) {
-      SupabaseSyncService.saveMeasurement(currentUser.id, m);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises,
+        measurements: updated,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ measurements: updated });
     }
@@ -383,7 +465,16 @@ export default function App() {
     const updated = measurements.filter((m) => m.id !== id);
     setMeasurements(updated);
     if (currentUser) {
-      SupabaseSyncService.deleteMeasurement(id);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises,
+        measurements: updated,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ measurements: updated });
     }
@@ -394,7 +485,16 @@ export default function App() {
     const updated = [p, ...photos];
     setPhotos(updated);
     if (currentUser) {
-      SupabaseSyncService.savePhoto(currentUser.id, p);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises,
+        measurements,
+        photos: updated,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ photos: updated });
     }
@@ -404,7 +504,16 @@ export default function App() {
     const updated = photos.filter((p) => p.id !== id);
     setPhotos(updated);
     if (currentUser) {
-      SupabaseSyncService.deletePhoto(id);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises,
+        measurements,
+        photos: updated,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ photos: updated });
     }
@@ -414,7 +523,16 @@ export default function App() {
   const handleUpdateProfile = (updated: UserProfile) => {
     setProfile(updated);
     if (currentUser) {
-      SupabaseSyncService.saveProfile(currentUser.id, updated);
+      const nextSnapshot: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises,
+        measurements,
+        photos,
+        profile: updated,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
     } else {
       updateGuestStorage({ profile: updated });
     }

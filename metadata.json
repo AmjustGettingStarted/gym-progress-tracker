@@ -1,0 +1,6 @@
+{
+  "name": "Gym Progress Tracker",
+  "description": "A fast, minimal, offline-first gym workout logger and progress tracking application with templates, history, body measurements, and data import/export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

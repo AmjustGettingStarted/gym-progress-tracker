@@ -166,7 +166,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onContinueGuest, onLoginSu
           )}
 
           {/* Google Sign In Button */}
-          <button
+          {/* <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
@@ -174,14 +174,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onContinueGuest, onLoginSu
           >
             <Chrome className="w-5 h-5 text-blue-500" />
             <span>Continue with Google</span>
-          </button>
+          </button> */}
 
-          <div className="relative flex items-center justify-center">
+          {/* <div className="relative flex items-center justify-center">
             <div className="border-t border-gray-200 dark:border-zinc-800 w-full"></div>
             <span className="bg-white dark:bg-zinc-950 px-4 text-xs uppercase font-bold text-gray-400 tracking-wider absolute">
               or with email
             </span>
-          </div>
+          </div> */}
 
           <form onSubmit={handleEmailAuth} className="space-y-4">
             <div>

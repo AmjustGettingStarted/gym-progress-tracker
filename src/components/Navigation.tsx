@@ -46,13 +46,13 @@ export const Navigation: React.FC<NavigationProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
             <div className="w-8 h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold text-sm tracking-widest">
-              G
+              <Dumbbell className="w-4 h-4" />
             </div>
-            <div>
+            <div className=''>
               <h1 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
                 Gym Tracker
               </h1>
-              <p className="text-xs text-gray-500 dark:text-zinc-400">
+              <p className="text-xs text-gray-500 hidden lg:block dark:text-zinc-400">
                 {currentUser ? 'Supabase Synced' : 'Minimal. Fast. Cloud Ready.'}
               </p>
             </div>
@@ -114,7 +114,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                 className="flex cursor-pointer items-center space-x-1.5 bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 text-xs font-semibold px-3 py-2 rounded-md transition-all"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Start Workout</span>
+                <span className='hidden lg:block'>Start Workout</span>
+                <span className='lg:hidden'>Start</span>
+
               </button>
             )}
 

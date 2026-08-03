@@ -183,7 +183,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onContinueGuest, onLoginSu
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-zinc-400 hover:text-white transition-colors"
+                      className="absolute right-3.5 top-3.5 text-zinc-400 hover:text-emerald-500 transition-colors cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -194,7 +194,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onContinueGuest, onLoginSu
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 mt-2"
+                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all  duration-200 cursor-pointer flex tracking-wide items-center justify-center space-x-2 mt-2"
                 >
                   {loading ? (
                     <span>Connecting...</span>

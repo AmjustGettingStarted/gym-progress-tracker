@@ -142,8 +142,8 @@ export const DEFAULT_TEMPLATES: WorkoutTemplate[] = [
 ];
 
 export const INITIAL_USER_PROFILE: UserProfile = {
-  name: 'Harshith',
-  email: 'harshithmv2002@gmail.com',
+  name: 'User',
+  email: 'user@gmail.com',
   weightUnit: 'kg',
   theme: 'light',
   defaultRestTimerSeconds: 90,

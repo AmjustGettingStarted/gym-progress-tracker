@@ -69,8 +69,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onContinueGuest, onLoginSu
             <div
               className="absolute inset-0"
               style={{
-                backdropFilter: "blur(35px) saturate(140%)",
-                WebkitBackdropFilter: "blur(35px) saturate(140%)",
+                backdropFilter: "blur(5px) saturate(100%)",
+                WebkitBackdropFilter: "blur(5px) saturate(100%)",
                 background: "linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06))",
               }}
             />
@@ -194,7 +194,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onContinueGuest, onLoginSu
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 mt-2"
+                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 mt-2"
                 >
                   {loading ? (
                     <span>Connecting...</span>

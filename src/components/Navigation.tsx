@@ -68,11 +68,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                   key={item.id}
                   id={`nav-item-desktop-${item.id}`}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-white'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-900'
-                  }`}
+                  className={`flex items-center space-x-2 cursor-pointer px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                    ? 'bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-white'
+                    : 'text-gray-600  hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-900'
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
@@ -87,11 +86,10 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               id="btn-account-auth"
               onClick={onOpenAuthModal}
-              className={`flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer ${
-                currentUser
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
-                  : 'bg-gray-50 dark:bg-zinc-800/80 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800'
-              }`}
+              className={`flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer ${currentUser
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                : 'bg-gray-50 dark:bg-zinc-800/80 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                }`}
               title={currentUser ? `Logged in as ${currentUser.email}` : 'Sign In / Cloud Sync'}
             >
               <User className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -113,7 +111,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               <button
                 id="btn-start-new-workout-top"
                 onClick={onStartNewWorkout}
-                className="flex items-center space-x-1.5 bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 text-xs font-semibold px-3 py-2 rounded-md transition-all"
+                className="flex cursor-pointer items-center space-x-1.5 bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 text-xs font-semibold px-3 py-2 rounded-md transition-all"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>Start Workout</span>
@@ -123,9 +121,8 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               id="btn-settings"
               onClick={() => setActiveTab('settings')}
-              className={`p-2 rounded-md text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${
-                activeTab === 'settings' ? 'bg-gray-100 dark:bg-zinc-800 text-black dark:text-white' : ''
-              }`}
+              className={`p-2  cursor-pointer rounded-md text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${activeTab === 'settings' ? 'bg-gray-100 dark:bg-zinc-800 text-black dark:text-white' : ''
+                }`}
               title="Settings"
             >
               <SettingsIcon className="w-4 h-4" />
@@ -144,11 +141,10 @@ export const Navigation: React.FC<NavigationProps> = ({
               key={item.id}
               id={`nav-item-mobile-${item.id}`}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors ${
-                isActive
-                  ? 'text-black dark:text-white font-semibold'
-                  : 'text-gray-500 dark:text-zinc-500 hover:text-gray-800 dark:hover:text-zinc-300'
-              }`}
+              className={`flex flex-col items-center justify-center py-1 px-3 rounded-md transition-colors ${isActive
+                ? 'text-black dark:text-white font-semibold'
+                : 'text-gray-500 dark:text-zinc-500 hover:text-gray-800 dark:hover:text-zinc-300'
+                }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
               <span className="text-[10px] mt-0.5">{item.label}</span>

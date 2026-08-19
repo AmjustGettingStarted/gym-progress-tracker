@@ -90,27 +90,51 @@ export const StorageService = {
     if (sessionIds && sessionIds.length > 0) {
       list = list.filter((s) => sessionIds.includes(s.id));
     }
-    const rows: string[] = [];
-    rows.push('Session Date,Workout Name,Exercise Name,Muscle Group,Set #,Set Type,Weight,Reps,Completed,Duration (min),Notes');
 
-    for (const session of list) {
-      const dateStr = new Date(session.startTime).toLocaleDateString('en-US');
+    const csvEscape = (value: string | number | undefined | null): string => {
+      const str = value === undefined || value === null ? '' : String(value);
+      return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    };
+
+    const headers = [
+      'Session Name', 'Date', 'Duration (min)', 'Exercise', 'Muscle Group',
+      'Set #', 'Set Type', 'Weight', 'Reps', 'RPE', 'Completed',
+      'Exercise Notes', 'Notes',
+    ];
+    const rows: string[] = [headers.join(',')];
+
+    list.forEach((session) => {
+      const dateStr = new Date(session.startTime).toISOString().split('T')[0];
       const durationMin = Math.round((session.durationSeconds || 0) / 60);
-      const notesEscaped = (session.notes || '').replace(/"/g, '""');
 
-      for (const ex of session.exercises) {
-        let setNum = 1;
-        for (const set of ex.sets) {
-          rows.push(
-            `"${dateStr}","${session.name.replace(/"/g, '""')}","${ex.exerciseName.replace(/"/g, '""')}","${ex.muscleGroup}",${setNum},"${set.setType}",${set.weight},${set.reps},${set.completed},${durationMin},"${notesEscaped}"`
-          );
-          setNum++;
-        }
+      if (session.exercises.length === 0) {
+        rows.push(
+          [
+            csvEscape(session.name), csvEscape(dateStr), csvEscape(durationMin),
+            '', '', '', '', '', '', '', '', '', csvEscape(session.notes)
+          ].join(',')
+        );
+        return;
       }
-    }
+
+      session.exercises.forEach((exercise) => {
+        exercise.sets.forEach((set, setIdx) => {
+          rows.push(
+            [
+              csvEscape(session.name), csvEscape(dateStr), csvEscape(durationMin),
+              csvEscape(exercise.exerciseName), csvEscape(exercise.muscleGroup),
+              csvEscape(setIdx + 1), csvEscape(set.setType), csvEscape(set.weight),
+              csvEscape(set.reps), csvEscape(set.rpe ?? ''), csvEscape(set.completed ? 'Yes' : 'No'),
+              csvEscape(exercise.notes), csvEscape(session.notes),
+            ].join(',')
+          );
+        });
+      });
+    });
 
     return rows.join('\n');
   },
+
 
   exportJSONBackup(dataState: {
     exercises: Exercise[];

@@ -88,16 +88,76 @@ The application focuses on simplicity, performance, and scalability while provid
 
 ## Project Structure
 
+This project structure reflects the current working tree, including hidden files and generated folders, excluding Git internals.
+
 ```text
-src/
-├── components/
-├── pages/
-├── hooks/
-├── lib/
-├── services/
-├── types/
-├── utils/
-└── assets/
+full-project-structure-listing/
+|-- assets/
+|   `-- gym.png
+|-- src/
+|   |-- components/
+|   |   |-- Auth/
+|   |   |   |-- AuthModal.tsx
+|   |   |   `-- LoginPage.tsx
+|   |   |-- Dashboard/
+|   |   |   `-- DashboardView.tsx
+|   |   |-- Data/
+|   |   |   `-- ImportExportModal.tsx
+|   |   |-- Exercises/
+|   |   |   `-- ExerciseLibraryView.tsx
+|   |   |-- History/
+|   |   |   `-- HistoryView.tsx
+|   |   |-- Progress/
+|   |   |   `-- ProgressView.tsx
+|   |   |-- Settings/
+|   |   |   `-- SettingsView.tsx
+|   |   |-- ui/
+|   |   |   |-- ConfirmModal.tsx
+|   |   |   |-- CustomSelect.tsx
+|   |   |   |-- glassmorphism-trust-hero.tsx
+|   |   |   `-- select.tsx
+|   |   |-- Workout/
+|   |   |   |-- ExerciseSelectorModal.tsx
+|   |   |   |-- StartWorkoutModal.tsx
+|   |   |   |-- TemplateManagerView.tsx
+|   |   |   `-- WorkoutLogger.tsx
+|   |   |-- Navigation.tsx
+|   |   `-- RestTimerBar.tsx
+|   |-- data/
+|   |   `-- defaultData.ts
+|   |-- lib/
+|   |   |-- calculations.ts
+|   |   |-- storage.ts
+|   |   |-- supabase.ts
+|   |   |-- supabaseSync.ts
+|   |   `-- utils.ts
+|   |-- App.tsx
+|   |-- index.css
+|   |-- main.tsx
+|   |-- types.ts
+|   `-- vite-env.d.ts
+|-- supabase/
+|   |-- .temp/
+|   |   |-- gotrue-version
+|   |   |-- linked-project.json
+|   |   |-- pooler-url
+|   |   |-- postgres-version
+|   |   |-- project-ref
+|   |   |-- rest-version
+|   |   |-- storage-migration
+|   |   `-- storage-version
+|   `-- migrations/
+|       `-- 0001_initial_schema.sql
+|-- .env.example
+|-- .gitignore
+|-- bun.lock
+|-- index.html
+|-- metadata.json
+|-- package-lock.json
+|-- package.json
+|-- README.md
+|-- tsconfig.json
+`-- vite.config.ts
 ```
 
 ---

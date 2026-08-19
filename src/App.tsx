@@ -11,7 +11,7 @@ import {
 import { DEFAULT_EXERCISES, DEFAULT_TEMPLATES, INITIAL_USER_PROFILE } from './data/defaultData';
 import { StorageService, GuestWorkoutData } from './lib/storage';
 import { supabase, logoutUser, User } from './lib/supabase';
-import { SupabaseSyncService, UserDataSnapshot } from './lib/supabaseSync';
+import { SupabaseSyncService, UserDataSnapshot, toDateKey } from './lib/supabaseSync';
 import { calculateAllPRs } from './lib/calculations';
 import { Navigation } from './components/Navigation';
 import { DashboardView } from './components/Dashboard/DashboardView';
@@ -46,6 +46,12 @@ export default function App() {
 
   // Active Live Workout Draft
   const [activeWorkout, setActiveWorkout] = useState<WorkoutSession | null>(null);
+
+  // Daily log state
+  const [todayLogType, setTodayLogType] = useState<'workout' | 'rest' | null>(null);
+
+  const hasCompletedWorkoutOnDate = (list: WorkoutSession[], dateKey: string) =>
+    list.some((s) => s.status === 'completed' && toDateKey(s.startTime) === dateKey);
 
   // Modal State
   const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
@@ -166,21 +172,38 @@ export default function App() {
     }
   }, [profile.theme]);
 
+  // Daily Activity Keep-Alive
+  useEffect(() => {
+    if (!currentUser || !hasHydratedUserData) return;
+    const todayKey = toDateKey(new Date());
+    const workedOutToday = hasCompletedWorkoutOnDate(sessions, todayKey);
+    void SupabaseSyncService.ensureDailyActivityLogged(currentUser.id, workedOutToday).then(() =>
+      setTodayLogType(workedOutToday ? 'workout' : 'rest')
+    );
+  }, [currentUser, hasHydratedUserData, sessions]);
+
+  // Debounced auto-save effect to protect Supabase rate limits
   useEffect(() => {
     if (!currentUser || !hasHydratedUserData) return;
 
-    const payload: UserDataSnapshot = {
-      sessions,
-      templates,
-      customExercises,
-      measurements,
-      photos,
-      profile,
-      activeDraft: activeWorkout,
-    };
+    const handler = setTimeout(() => {
+      const payload: UserDataSnapshot = {
+        sessions,
+        templates,
+        customExercises,
+        measurements,
+        photos,
+        profile,
+        activeDraft: activeWorkout,
+      };
+      void SupabaseSyncService.saveUserData(currentUser.id, payload);
+    }, 1000); // 1 second debounce
 
-    void SupabaseSyncService.saveUserData(currentUser.id, payload);
+    return () => {
+      clearTimeout(handler);
+    };
   }, [activeWorkout, currentUser, customExercises, hasHydratedUserData, measurements, photos, profile, sessions, templates]);
+
 
   // Derived Personal Records
   const prs = calculateAllPRs(sessions);
@@ -273,6 +296,9 @@ export default function App() {
         activeDraft: null,
       };
       void SupabaseSyncService.saveUserData(currentUser.id, nextSnapshot);
+      void SupabaseSyncService.ensureDailyActivityLogged(currentUser.id, true).then(() =>
+        setTodayLogType('workout')
+      );
     } else {
       updateGuestStorage({
         sessions: updatedSessionsList,
@@ -281,6 +307,16 @@ export default function App() {
     }
     setActiveTab('dashboard');
   };
+
+  // Feature 2.3: manual "Rest Day" button
+  const handleMarkRestDay = () => {
+    if (!currentUser) return;
+    const todayKey = toDateKey(new Date());
+    void SupabaseSyncService.upsertDailyLog(currentUser.id, todayKey, 'rest').then(() =>
+      setTodayLogType('rest')
+    );
+  };
+
 
   // Discard Active Workout
   const handleDiscardWorkout = () => {
@@ -729,6 +765,16 @@ export default function App() {
         onStartFromTemplate={handleStartFromTemplate}
         onGoToTemplatesTab={() => setActiveTab('templates')}
       />
+
+      {currentUser && !activeWorkout && todayLogType !== 'workout' && (
+        <button
+          onClick={handleMarkRestDay}
+          className="fixed bottom-4 right-4 z-40 px-4 py-2 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-black text-xs font-bold shadow-lg cursor-pointer hover:scale-105 transition-transform"
+        >
+          {todayLogType === 'rest' ? 'Rest Day Logged ✓' : 'Mark Rest Day'}
+        </button>
+      )}
     </div>
   );
 }
+

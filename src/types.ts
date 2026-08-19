@@ -155,3 +155,12 @@ export interface UserProfile {
 }
 
 export type TabType = 'dashboard' | 'workout' | 'templates' | 'history' | 'progress' | 'exercises' | 'settings';
+
+export type DailyLogType = 'workout' | 'rest';
+
+export interface DailyLog {
+  id: string;
+  logDate: string; // YYYY-MM-DD
+  logType: DailyLogType;
+}
+

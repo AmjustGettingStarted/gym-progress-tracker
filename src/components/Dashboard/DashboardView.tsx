@@ -144,7 +144,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const d = new Date();
       d.setDate(d.getDate() - (numDays - 1 - i));
       const dateStr = d.toISOString().split('T')[0];
-      const dayLabel = numDays <= 7 
+      const dayLabel = numDays <= 7
         ? d.toLocaleDateString('default', { weekday: 'short' })
         : d.toLocaleDateString('default', { month: 'short', day: 'numeric' });
 
@@ -372,31 +372,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center bg-gray-100 dark:bg-zinc-800 p-1 rounded-xl">
                 <button
                   onClick={() => setActiveChartTab('exercise')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    activeChartTab === 'exercise'
-                      ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-xs'
-                      : 'text-gray-500 hover:text-black dark:hover:text-white'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeChartTab === 'exercise'
+                    ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-xs'
+                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                    }`}
                 >
                   Exercise Progress
                 </button>
                 <button
                   onClick={() => setActiveChartTab('ppl')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    activeChartTab === 'ppl'
-                      ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-xs'
-                      : 'text-gray-500 hover:text-black dark:hover:text-white'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeChartTab === 'ppl'
+                    ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-xs'
+                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                    }`}
                 >
                   Push / Pull / Legs
                 </button>
                 <button
                   onClick={() => setActiveChartTab('sets')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    activeChartTab === 'sets'
-                      ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-xs'
-                      : 'text-gray-500 hover:text-black dark:hover:text-white'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeChartTab === 'sets'
+                    ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-xs'
+                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                    }`}
                 >
                   Daily Sets
                 </button>
@@ -412,33 +409,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setTimeRange('90d')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    timeRange === '90d'
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-gray-200 dark:border-zinc-700'
-                  }`}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${timeRange === '90d'
+                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
+                    : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-gray-200 dark:border-zinc-700'
+                    }`}
                 >
                   Last 3 months
                 </button>
                 <button
                   type="button"
                   onClick={() => setTimeRange('30d')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    timeRange === '30d'
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-gray-200 dark:border-zinc-700'
-                  }`}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${timeRange === '30d'
+                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
+                    : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-gray-200 dark:border-zinc-700'
+                    }`}
                 >
                   Last 30 days
                 </button>
                 <button
                   type="button"
                   onClick={() => setTimeRange('7d')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    timeRange === '7d'
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-gray-200 dark:border-zinc-700'
-                  }`}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${timeRange === '7d'
+                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
+                    : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-gray-200 dark:border-zinc-700'
+                    }`}
                 >
                   Last 7 days
                 </button>
@@ -499,7 +493,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           formatter={(val: any) => [`${val} ${weightUnit}`, 'Top Weight']}
                         />
                         <Area
-                          type="natural"
+                          type="monotone"
                           dataKey="maxWeight"
                           stroke="#10b981"
                           strokeWidth={2.5}
@@ -580,7 +574,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         formatter={(val: any) => [`${val} sets`, 'Completed Sets']}
                       />
                       <Area
-                        type="natural"
+                        type="monotone"
                         dataKey="sets"
                         stroke="#3b82f6"
                         strokeWidth={3}
@@ -726,19 +720,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   key={dateStr}
                   onClick={() => setSelectedDate(dateStr)}
-                  className={`h-11 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all relative cursor-pointer ${
-                    isSelected
-                      ? 'ring-2 ring-black dark:ring-white bg-gray-100 dark:bg-zinc-800 font-bold shadow-xs'
-                      : 'hover:bg-gray-50 dark:hover:bg-zinc-800/60'
-                  } ${isToday ? 'border border-blue-500' : 'border border-transparent'}`}
+                  className={`h-11 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all relative cursor-pointer ${isSelected
+                    ? 'ring-2 ring-black dark:ring-white bg-gray-100 dark:bg-zinc-800 font-bold shadow-xs'
+                    : 'hover:bg-gray-50 dark:hover:bg-zinc-800/60'
+                    } ${isToday ? 'border border-blue-500' : 'border border-transparent'}`}
                 >
                   <span
                     className={
                       isSelected
                         ? 'text-black dark:text-white'
                         : isToday
-                        ? 'text-blue-600 dark:text-blue-400 font-bold'
-                        : 'text-gray-700 dark:text-zinc-300'
+                          ? 'text-blue-600 dark:text-blue-400 font-bold'
+                          : 'text-gray-700 dark:text-zinc-300'
                     }
                   >
                     {dayNum}
